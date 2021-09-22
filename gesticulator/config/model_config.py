@@ -91,6 +91,9 @@ def construct_model_config_parser(add_trainer_args = True):
     parser.add('--text_embedding', '-text_emb',  default="BERT", choices=["BERT", "FastText"],
                help='Which text embedding do we use (\'BERT\' or \'FastText\')')
 
+    parser.add('--disable_audio', action='store_true',
+               help='if flag is set, model will only use text data; otherwise will use audio+text')
+
     # Training params
     parser.add('--batch_size',    '-btch',  default=64,     type=int,   help='Batch size')
     parser.add('--learning_rate', '-lr',    default=0.0001, type=float, help='Learning rate')

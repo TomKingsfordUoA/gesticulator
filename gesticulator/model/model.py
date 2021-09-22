@@ -7,26 +7,23 @@ contact: tarask@kth.se
 """
 
 import os
-from os import path
-from collections import OrderedDict
-import math
-from argparse import ArgumentParser
 import warnings
-
+from collections import OrderedDict
+from os import path
 from shutil import rmtree
-from joblib import load
 
-import torch
-import torch.nn as nn
 import numpy as np
 import pytorch_lightning as pl
+import torch
+import torch.nn as nn
 
-from gesticulator.model.prediction_saving import PredictionSavingMixin
 from gesticulator.data_processing.SGdataset import SpeechGestureDataset, ValidationDataset
+from gesticulator.model.prediction_saving import PredictionSavingMixin
 
 warnings.filterwarnings("ignore")
 torch.set_default_tensor_type('torch.FloatTensor')
 torch.autograd.set_detect_anomaly(True)
+
 
 def weights_init_he(m):
     """Initialize the given linear layer using He initialization."""
@@ -38,12 +35,14 @@ def weights_init_he(m):
         # m.bias.data should be 0
         m.bias.data.fill_(0)
 
+
 def weights_init_zeros(m):
     """Initialize the given linear layer with zeroes."""
     classname = m.__class__.__name__
     if classname.find('Linear') != -1:
         nn.init.zeros_(m.bias.data)
         nn.init.zeros_(m.weight.data)
+
 
 class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
     """
@@ -161,28 +160,43 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
                                               nn.Linear(self.output_dim, self.output_dim))
 
         # Speech frame-level Encodigs
+        if not self.hparams.disable_audio:
+            speech_dim = self.train_dataset.audio_dim + self.text_dim
+        else:
+            speech_dim = self.text_dim
         if args.use_recurrent_speech_enc:
             self.gru_size = int(args.speech_enc_frame_dim / 2)
             self.gru_seq_l = args.past_context + args.future_context
             self.hidden = None
-            self.encode_speech = nn.GRU(self.train_dataset.audio_dim + self.text_dim, self.gru_size, 2,
-                                        dropout=args.dropout, bidirectional=True)
+            self.encode_speech = nn.GRU(
+                speech_dim,
+                self.gru_size,
+                2,
+                dropout=args.dropout,
+                bidirectional=True,
+            )
         else:
-            self.encode_speech = nn.Sequential(nn.Linear(self.hparams.audio_dim + self.text_dim,
-                                               args.speech_enc_frame_dim * 2), self.activation,
-                                               nn.Dropout(args.dropout), nn.Linear(args.speech_enc_frame_dim*2,
-                                                                                   args.speech_enc_frame_dim),
-                                               self.activation, nn.Dropout(args.dropout))
+            self.encode_speech = nn.Sequential(
+                nn.Linear(speech_dim, args.speech_enc_frame_dim * 2),
+                self.activation,
+                nn.Dropout(args.dropout),
+                nn.Linear(args.speech_enc_frame_dim*2, args.speech_enc_frame_dim),
+                self.activation,
+                nn.Dropout(args.dropout),
+            )
 
         # To reduce deminsionality of the speech encoding
-        self.reduce_speech_enc = nn.Sequential(nn.Linear(int(args.speech_enc_frame_dim * \
-                                                        (args.past_context + args.future_context)),
-                                                         args.full_speech_enc_dim),
-                                               self.activation, nn.Dropout(args.dropout))
+        self.reduce_speech_enc = nn.Sequential(
+            nn.Linear(int(args.speech_enc_frame_dim * (args.past_context + args.future_context)), args.full_speech_enc_dim),
+            self.activation,
+            nn.Dropout(args.dropout),
+        )
 
-        self.conditioning_1 = nn.Sequential(nn.Linear(self.output_dim * args.n_prev_poses,
-                                                args.first_l_sz * 2), self.activation,
-                                            nn.Dropout(args.dropout * args.dropout_multiplier))
+        self.conditioning_1 = nn.Sequential(
+            nn.Linear(self.output_dim * args.n_prev_poses, args.first_l_sz * 2),
+            self.activation,
+            nn.Dropout(args.dropout * args.dropout_multiplier),
+        )
 
     def init_layers(self):
         # Use He initialization for most layers
@@ -249,7 +263,6 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
         if "validation" in self.enabled_phases:
             self.val_input = \
                 self.load_train_or_val_input(self.val_sequence[0])
-       
                 
     def forward(self, audio, text, use_conditioning, motion, use_teacher_forcing=True):
         """
@@ -283,9 +296,9 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
         future_context = self.hparams.future_context
         for time_st in range(past_context, audio.shape[1] - future_context):
             # take current audio and text of the speech
-            curr_audio = audio[:, time_st - past_context:time_st+future_context]
+            curr_audio = audio[:, time_st - past_context:time_st+future_context] if not self.hparams.disable_audio else None
             curr_text = text[:, time_st-past_context:time_st+future_context]
-            curr_speech = torch.cat((curr_audio, curr_text), 2)
+            curr_speech = torch.cat((curr_audio, curr_text) if not self.hparams.disable_audio else (curr_text,), 2)
             # encode speech
             if self.hparams.use_recurrent_speech_enc:
                 speech_encoding_full, hh = self.encode_speech(curr_speech)
@@ -310,10 +323,8 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
             else:
                 conditioning_vector_1 = None
 
-
             first_h = self.first_layer(speech_enc_reduced)
-            first_o = self.FiLM(conditioning_vector_1, first_h,
-                                self.hparams.first_l_sz, use_conditioning)
+            first_o = self.FiLM(conditioning_vector_1, first_h, self.hparams.first_l_sz, use_conditioning)
 
             if self.n_layers == 1:
                 final_h = first_o
