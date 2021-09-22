@@ -4,25 +4,16 @@
 """
 This script converts a gesticulation dataset from the BVH format to joint angles.
 """
-import numpy as np
-import pandas as pd
-from sklearn.pipeline import Pipeline
-
+import os
 from argparse import ArgumentParser
 
-import glob
-import os
-import sys
-module_path = os.path.abspath(os.path.join('..'))
-if module_path not in sys.path:
-    sys.path.append(module_path)
-
-from pymo.parsers import BVHParser
-from pymo.data import Joint, MocapData
-from pymo.preprocessing import *
-from pymo.writers import *
-
 import joblib as jl
+from sklearn.pipeline import Pipeline
+
+from gesticulator.pymo.parsers import BVHParser
+from gesticulator.pymo.preprocessing import *
+from gesticulator.pymo.writers import *
+
 
 def extract_joint_angles(bvh_dir, files, dest_dir, pipeline_dir, fps):
     p = BVHParser()

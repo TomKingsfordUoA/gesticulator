@@ -8,16 +8,14 @@ It should be used before training, as described in the README.md file.
 import os
 from os import path
 
-import tqdm
-import pandas as pd
 import numpy as np
-
-from gesticulator.data_processing.text_features.parse_json_transcript import encode_json_transcript_with_bert, encode_json_transcript_with_bert_DEPRECATED
-from gesticulator.data_processing import tools
-# Params
-from gesticulator.data_processing.data_params import processing_argparser
-
+import pandas as pd
+import tqdm
 from transformers import BertTokenizer, BertModel
+
+from gesticulator.data_processing import tools
+from gesticulator.data_processing.data_params import processing_argparser
+from gesticulator.data_processing.text_features.parse_json_transcript import encode_json_transcript_with_bert
 
 
 def _encode_vectors(audio_filename, gesture_filename, text_filename, embedding_model, mode, args, augment_with_context):

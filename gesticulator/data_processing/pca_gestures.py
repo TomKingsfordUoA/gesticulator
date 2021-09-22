@@ -1,6 +1,5 @@
-from joblib import dump, load
 import numpy as np
-from sklearn.decomposition import PCA
+from joblib import load
 
 root_dir = "/home/taras/Documents/Datasets/SpeechToMotion/Irish/processed/Play"
 

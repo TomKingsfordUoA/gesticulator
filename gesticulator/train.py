@@ -1,20 +1,18 @@
 import os
-import sys
 
 import numpy as np
 import torch
-from argparse import ArgumentParser
+from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks.base import Callback
+from pytorch_lightning.loggers import TensorBoardLogger
 
 from config.model_config import construct_model_config_parser
 from gesticulator.model.model import GesticulatorModel
-from pytorch_lightning import Trainer
-from pytorch_lightning.logging import TensorBoardLogger
-from pytorch_lightning.callbacks.base import Callback
 
-from visualization.motion_visualizer.generate_videos import generate_videos
 SEED = 2334
 torch.manual_seed(SEED)
 np.random.seed(SEED)
+
 
 class ModelSavingCallback(Callback):
     """ 
@@ -32,13 +30,18 @@ class ModelSavingCallback(Callback):
             trainer.save_checkpoint(os.path.join(model.save_dir, checkpoint_fname))
             print("\n\n  Saved checkpoint to", os.path.join(checkpoint_dir, checkpoint_fname), end="\n")
 
+
 def main(hparams):
     model = GesticulatorModel(hparams)
     logger = create_logger(model.save_dir)
     callbacks = [ModelSavingCallback()] if hparams.save_model_every_n_epochs > 0 else []
     
-    trainer = Trainer.from_argparse_args(hparams, logger=logger, callbacks = callbacks,
-        checkpoint_callback=False, early_stop_callback=False)
+    trainer = Trainer.from_argparse_args(
+        hparams,
+        logger=logger,
+        callbacks=callbacks,
+        checkpoint_callback=False,
+    )
 
     trainer.fit(model)
     trainer.save_checkpoint(os.path.join(model.save_dir, "trained_model.ckpt"))
@@ -53,10 +56,12 @@ def create_logger(model_save_dir):
     
     return TensorBoardLogger(save_dir=result_dir, version=run_name, name="")
 
+
 def add_training_script_arguments(parser):
     parser.add_argument('--save_model_every_n_epochs', '-ckpt_freq', type=int, default=0,
                         help="The frequency of model checkpoint saving.")
     return parser
+
 
 if __name__ == '__main__':
     # Model parameters are added here
@@ -67,4 +72,3 @@ if __name__ == '__main__':
 
     hyperparams = parser.parse_args()
     main(hyperparams)
-

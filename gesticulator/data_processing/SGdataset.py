@@ -1,13 +1,11 @@
 from __future__ import print_function, division
-from os import path
-import torch
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from torch.utils.data import Dataset, DataLoader
-import random
 
-from sklearn.decomposition import PCA
+import random
+from os import path
+
+import numpy as np
+import torch
+from torch.utils.data import Dataset
 
 torch.set_default_tensor_type('torch.FloatTensor')
 

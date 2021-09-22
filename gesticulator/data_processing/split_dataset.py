@@ -4,11 +4,11 @@ More info on its usage is given in the main README.md file
 
 @authors: Taras Kucherenko, Rajmund Nagy
 """
-import sys
 import os
 import shutil
-import pandas
 from os import path
+
+import pandas
 
 # Params
 from gesticulator.data_processing.data_params import dataset_argparser

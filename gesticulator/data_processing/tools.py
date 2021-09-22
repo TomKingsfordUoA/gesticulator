@@ -8,14 +8,12 @@ for generating bvh files, aligning sequences and calculation of speech features
 
 import librosa
 import librosa.display
-
-from pydub import AudioSegment # TODO(RN) add dependency!
-import parselmouth as pm # TODO(RN) add dependency!
-from python_speech_features import mfcc
-import scipy.io.wavfile as wav
-
 import numpy as np
+import parselmouth as pm  # TODO(RN) add dependency!
 import scipy
+import scipy.io.wavfile as wav
+from pydub import AudioSegment  # TODO(RN) add dependency!
+from python_speech_features import mfcc
 
 NFFT = 1024
 MFCC_INPUTS=26 # How many features we will store for each MFCC vector

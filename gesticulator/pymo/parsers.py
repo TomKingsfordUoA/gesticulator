@@ -8,8 +8,11 @@ Based on: https://gist.github.com/johnfredcee/2007503
 
 '''
 import re
+
 import numpy as np
-from pymo.data import Joint, MocapData
+
+from pymo.data import MocapData
+
 
 class BVHScanner():
     '''

@@ -5,7 +5,7 @@ from os import path
 from .bvh2npy import convert_bvh2npy
 from .convert2bvh import write_bvh
 from .model_animator import create_video
-from ..pymo.writers import *
+from gesticulator.pymo.writers import *
 
 
 # ToDo 1: set path to this folder for importing PyMo properly
