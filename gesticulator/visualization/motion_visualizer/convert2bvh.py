@@ -1,10 +1,10 @@
-import numpy as np
-import subprocess
 import os
 import sys
 
-from pymo.writers import BVHWriter
 import joblib
+import numpy as np
+
+from ..pymo.writers import BVHWriter
 
 
 def write_bvh(datapipe_file, anim_clip, filename, fps):

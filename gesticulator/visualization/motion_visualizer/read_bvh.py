@@ -5,9 +5,9 @@
 # @author: Taras Kucherenko
 
 
-import motion_visualizer.bvh_helper as BVH
-
 import numpy as np
+
+from . import bvh_helper as BVH
 
 
 def append(current_node, current_coords, main_joints):

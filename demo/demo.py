@@ -1,3 +1,4 @@
+import sys
 from argparse import ArgumentParser
 import os
 import subprocess
@@ -8,6 +9,10 @@ import librosa
 from gesticulator.model.model import GesticulatorModel
 from gesticulator.interface.gesture_predictor import GesturePredictor
 from gesticulator.visualization.motion_visualizer.generate_videos import visualize
+
+# add the directory containing pymo to PYTHONPATH
+sys.path.append(os.path.join(os.path.dirname(__file__), '../gesticulator/visualization'))
+
 
 def main(args):
     # 0. Check feature type based on the model
@@ -38,6 +43,7 @@ def main(args):
     # Remove temporary files
     for ext in ["bvh", "npy", "mp4"]:
         os.remove("temp." + ext)
+
 
 def check_feature_type(model_file):
     """
@@ -85,6 +91,7 @@ def truncate_audio(input_path, target_duration_sec):
 
     return output_path
 
+
 def parse_args():
     parser = ArgumentParser()
     parser.add_argument('--audio', type=str, default="input/jeremy_howard.wav", help="path to the input speech recording")
@@ -102,7 +109,8 @@ def parse_args():
     
     return parser.parse_args()
 
+
 if __name__ == "__main__":
     args = parse_args()
-    
+
     main(args)

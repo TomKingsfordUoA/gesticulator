@@ -1,17 +1,15 @@
-import os
 from argparse import ArgumentParser, Namespace
 
 import numpy as np
-import torch
-
-from gesticulator.model.model import GesticulatorModel
-from pytorch_lightning import Trainer
-from test_tube import HyperOptArgumentParser
-from ray import tune
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
-from ray.tune.schedulers import AsyncHyperBandScheduler
 import ray
+import torch
+from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import ModelCheckpoint
+from ray import tune
 from ray.tune.resources import Resources
+from ray.tune.schedulers import AsyncHyperBandScheduler
+
+from ..model.model import GesticulatorModel
 
 SEED = 2334
 torch.manual_seed(SEED)

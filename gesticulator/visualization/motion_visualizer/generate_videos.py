@@ -1,15 +1,14 @@
-import numpy as np
 import argparse
 import os
 from os import path
 
+from .bvh2npy import convert_bvh2npy
+from .convert2bvh import write_bvh
+from .model_animator import create_video
+from ..pymo.writers import *
+
+
 # ToDo 1: set path to this folder for importing PyMo properly
-
-from motion_visualizer.bvh2npy import convert_bvh2npy
-from motion_visualizer.model_animator import create_video
-from motion_visualizer.convert2bvh import write_bvh
-
-from pymo.writers import *
 
 def visualize(motion_in, bvh_file, npy_file, mp4_file, start_t, end_t, data_pipe_dir):
     """

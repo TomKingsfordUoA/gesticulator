@@ -4,11 +4,11 @@ This file is used to visualize the results in a simple stick figure
 authors: Pieter Wolfert, Taras Kucherenko
 """
 
-import matplotlib.pyplot as plt
-from matplotlib import animation
-import numpy as np
-
 import argparse
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import animation
 
 
 class ModelSkeletons:

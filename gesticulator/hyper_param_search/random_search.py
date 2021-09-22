@@ -1,15 +1,13 @@
-import os
 from argparse import ArgumentParser
 
 import numpy as np
-
 import ray
 import torch
-from gesticulator.model.model import GesticulatorModel
 from ray import tune
-from ray.tune import track
-from gesticulator.hyper_param_search.ray_trainable import TrainableTrainer, MyEarlyStopping
-from gesticulator.hyper_param_search.schedulers import MyAsyncHyperBandScheduler, MyFIFOScheduler
+
+from ..hyper_param_search.ray_trainable import TrainableTrainer, MyEarlyStopping
+from ..hyper_param_search.schedulers import MyAsyncHyperBandScheduler
+from ..model.model import GesticulatorModel
 
 SEED = 2334
 torch.manual_seed(SEED)

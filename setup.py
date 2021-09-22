@@ -8,4 +8,5 @@ setup(name='gesticulator',
       author_email='tarask@kth.se',
       license='MIT',
       packages=['gesticulator'],
+      python_requires='>=3.7',
       zip_safe=False)

@@ -1,6 +1,8 @@
-from motion_visualizer.read_bvh import read_bvh_to_array
-import numpy as np
 import argparse
+
+import numpy as np
+
+from .read_bvh import read_bvh_to_array
 
 
 def convert_bvh2npy(bvh_file, npy_file):

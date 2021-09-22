@@ -1,16 +1,14 @@
 import os
-from argparse import Namespace
 from collections import defaultdict
 
 import numpy as np
-
-from gesticulator.model.model import GesticulatorModel
 import ray
 import torch
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint
 from ray import tune
-import joblib
+
+from ..model.model import GesticulatorModel
 
 torch.set_default_tensor_type('torch.FloatTensor')
 

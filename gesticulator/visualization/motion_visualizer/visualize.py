@@ -1,13 +1,12 @@
-import tempfile
 import argparse
-import numpy as np
 import os
+import tempfile
 
-from motion_visualizer.model_animator import create_video
-from pymo.writers import BVHWriter
-from motion_visualizer.read_bvh import read_bvh_to_array
-from motion_visualizer.convert2bvh import write_bvh
+import numpy as np
 
+from .convert2bvh import write_bvh
+from .model_animator import create_video
+from .read_bvh import read_bvh_to_array
 
 __DEFAULT_DAT_FILE_LOCATION = os.path.join(
     os.path.dirname(__file__), "data", "data_pipe.sav"

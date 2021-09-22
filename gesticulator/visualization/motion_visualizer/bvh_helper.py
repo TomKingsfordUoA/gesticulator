@@ -1,6 +1,7 @@
-import bvh as BVHLIB
-import math
 import copy
+import math
+
+import bvh as BVHLIB
 import numpy as np
 
 
