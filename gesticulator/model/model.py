@@ -452,8 +452,6 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
         if self.save_train_predictions and elapsed_epochs >= self.hparams.save_train_predictions_every_n_epoch:
             self.last_saved_train_prediction_epoch = self.current_epoch
             self.generate_training_predictions()
-
-        return {} # The trainer expects a dictionary
         
     def validation_step(self, batch, batch_nb):
         speech = batch["audio"]
