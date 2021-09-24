@@ -3,6 +3,7 @@ import os
 import numpy as np
 import torch
 from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.callbacks.base import Callback
 from pytorch_lightning.loggers import TensorBoardLogger
 
@@ -34,7 +35,17 @@ class ModelSavingCallback(Callback):
 def main(hparams):
     model = GesticulatorModel(hparams)
     logger = create_logger(model.save_dir)
-    callbacks = [ModelSavingCallback()] if hparams.save_model_every_n_epochs > 0 else []
+    callbacks = []
+    if hparams.save_model_every_n_epochs > 0:
+        callbacks.append(ModelSavingCallback())
+    if hparams.early_stopping_patience >= 0:
+        print('Using EarlyStopping')
+        callbacks.append(EarlyStopping(
+            monitor='loss',
+            patience=hparams.early_stopping_patience,
+            verbose=True,
+            mode='min',
+        ))
     
     trainer = Trainer.from_argparse_args(
         hparams,

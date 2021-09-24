@@ -17,8 +17,8 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 
-from gesticulator.data_processing.SGdataset import SpeechGestureDataset, ValidationDataset
-from gesticulator.model.prediction_saving import PredictionSavingMixin
+from .prediction_saving import PredictionSavingMixin
+from ..data_processing.SGdataset import SpeechGestureDataset, ValidationDataset
 
 warnings.filterwarnings("ignore")
 torch.set_default_tensor_type('torch.FloatTensor')
@@ -76,7 +76,7 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
         self.init_layers()
         
         self.rnn_is_initialized = False
-        self.loss = nn.MSELoss()
+        self.loss_fn = nn.MSELoss()
         self.teaching_freq = 0
     
     def setup(self, stage):
@@ -386,7 +386,7 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
 
         return output
 
-    def tr_loss(self, y_hat, y):
+    def loss(self, y_hat, y):
         """
         Training loss
         Args:
@@ -400,16 +400,7 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
         # calculate corresponding speed
         pred_speed = y_hat[:,1:] - y_hat[:,:-1]
         actual_speed = y[:,1:] - y[:,:-1]
-        vel_loss = self.loss(pred_speed, actual_speed)
-
-        return [self.loss(y_hat, y), vel_loss * self.hparams.vel_coef]
-
-    def val_loss(self, y_hat, y):
-        # calculate corresponding speed
-        pred_speed = y_hat[:,1:] - y_hat[:,:-1]
-        actual_speed = y[:,1:] - y[:,:-1]
-
-        return self.loss(pred_speed, actual_speed)
+        return self.loss_fn(y_hat, y) + self.loss_fn(pred_speed, actual_speed) * self.hparams.vel_coef
 
     def training_step(self, batch, batch_nb):
         """
@@ -436,26 +427,16 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
         predicted_gesture = self.forward(audio, text, use_conditioning, true_gesture)
 
         # remove last frames which had no future info and hence were not predicted
-        true_gesture = true_gesture[:,  
-                       self.hparams.past_context:-self.hparams.future_context]
+        true_gesture = true_gesture[:, self.hparams.past_context:-self.hparams.future_context]
         
         # Get training loss
-        mse_loss, vel_loss = self.tr_loss(predicted_gesture, true_gesture)
-        loss = mse_loss + vel_loss
+        loss = self.loss(predicted_gesture, true_gesture)
 
-        loss_val = loss.unsqueeze(0)
-        mse_loss_val = mse_loss.unsqueeze(0)
-        vel_loss_val = vel_loss.unsqueeze(0)
+        self.log("loss", loss, prog_bar=True)
 
-        tqdm_dict = {"train/full_loss": loss_val,
-                      "train/mse_loss": mse_loss_val,
-                      "train/cont_loss": vel_loss_val}
-
-        output = OrderedDict({
+        return OrderedDict({
             'loss': loss,
-            'log': tqdm_dict})
-
-        return output
+        })
 
     def training_epoch_end(self, outputs):
         elapsed_epochs = self.current_epoch - self.last_saved_train_prediction_epoch 
@@ -470,15 +451,15 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
         true_gesture = batch["output"]
 
         # Text on validation sequences without teacher forcing
-        predicted_gesture = self.forward(speech, text, use_conditioning=True, motion = None, use_teacher_forcing=False)
+        predicted_gesture = self.forward(speech, text, use_conditioning=True, motion=None, use_teacher_forcing=False)
 
         # remove last frame which had no future info
-        true_gesture = true_gesture[:,
-                       self.hparams.past_context:-self.hparams.future_context]
+        true_gesture = true_gesture[:, self.hparams.past_context:-self.hparams.future_context]
 
-        val_loss = self.val_loss(predicted_gesture, true_gesture)
+        val_loss = self.loss(predicted_gesture, true_gesture)
 
-        logger_logs = {'validation_loss': val_loss}
+        logger_logs = {'val_loss': val_loss}
+        self.log('val_loss', val_loss, prog_bar=True)
 
         return {'val_loss': val_loss, 'val_example':predicted_gesture, 'log': logger_logs}
  

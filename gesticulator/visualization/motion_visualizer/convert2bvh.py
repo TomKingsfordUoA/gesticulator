@@ -4,7 +4,7 @@ import sys
 import joblib
 import numpy as np
 
-from gesticulator.pymo.writers import BVHWriter
+from ...pymo.writers import BVHWriter
 
 
 def write_bvh(datapipe_file, anim_clip, filename, fps):

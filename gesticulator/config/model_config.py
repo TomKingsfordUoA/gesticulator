@@ -1,7 +1,8 @@
-import configargparse as cfgparse
 import argparse
-import os
+
+import configargparse as cfgparse
 from pytorch_lightning import Trainer
+
 
 def construct_model_config_parser(add_trainer_args = True):
     """Construct the configuration parser for the Gesticulator model and (optionally) for the Trainer.
@@ -101,6 +102,8 @@ def construct_model_config_parser(add_trainer_args = True):
     parser.add('--dropout',       '-drop',  default=0.2,    type=float, help='Dropout probability')
     parser.add('--dropout_multiplier', '-d_mult', default=4.0, type=float, help='The dropout is multiplied by this factor in the conditioning layer')
     parser.add('--n_epochs_with_no_autoregression', '-n_teacher', default=7, type=int, help='The number of epochs with full teacher forcing enabled')
+    parser.add('--early_stopping_patience', type=int, default=3, help='If <0, dont use early stopping; if >=0, stop after this number of consecutive epochs without improvement')
+
     # Prediction saving parameters
     parser.add('--save_val_predictions_every_n_epoch', '-val_save_rate', default=0, type=int, 
                help='If n > 0, generate and save the predicted gestures on the first validation sequence '
@@ -128,6 +131,5 @@ def construct_model_config_parser(add_trainer_args = True):
     parser.add('--no_overwrite_warning', '-no_warn', action='store_true',
                help='If this flag is set, and the given <run_name> directory already exists, '
                     'it will be cleared without displaying any warnings')
-
 
     return parser
