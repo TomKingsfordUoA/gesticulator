@@ -64,6 +64,7 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
         super().__init__()
         self.save_hyperparameters(args)
 
+        self.save_dir = path.join(self.hparams.result_dir, self.hparams.run_name)
         if not inference_mode:
             self.create_result_folder()
             # The datasets are loaded in this constructor because they contain 
@@ -71,6 +72,8 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
             self.load_datasets()
             self.hparams.audio_dim = self.train_dataset.audio_dim
             self.calculate_mean_pose()
+        else:
+            self.load_mean_pose()
         
         self.construct_layers(self.hparams)
         self.init_layers()
@@ -102,7 +105,6 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
     def create_result_folder(self):
         """Create the <results>/<run_name> folder."""
         run_name = self.hparams.run_name
-        self.save_dir = path.join(self.hparams.result_dir, run_name)
         # Clear the save directory for this run if it exists
         if path.isdir(self.save_dir):
             if run_name == 'last_run' or self.hparams.no_overwrite_warning:
@@ -211,10 +213,10 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
 
     def calculate_mean_pose(self):
         self.hparams.mean_pose = np.mean(self.val_dataset.gesture, axis=(0, 1))
-        np.save("./utils/mean_pose.npy", self.hparams.mean_pose)
+        np.save(os.path.join(self.save_dir, "mean_pose.npy"), self.hparams.mean_pose)
 
     def load_mean_pose(self):
-        self.hparams.mean_pose = np.load("./utils/mean_pose.npy")
+        self.hparams.mean_pose = np.load(os.path.join(self.save_dir, "mean_pose.npy"))
 
     def initialize_rnn_hid_state(self):
         """Initialize the hidden state for the RNN."""
