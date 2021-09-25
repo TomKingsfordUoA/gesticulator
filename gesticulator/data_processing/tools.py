@@ -9,10 +9,10 @@ for generating bvh files, aligning sequences and calculation of speech features
 import librosa
 import librosa.display
 import numpy as np
-import parselmouth as pm  # TODO(RN) add dependency!
+import parselmouth as pm
 import scipy
 import scipy.io.wavfile as wav
-from pydub import AudioSegment  # TODO(RN) add dependency!
+from pydub import AudioSegment
 from python_speech_features import mfcc
 
 NFFT = 1024

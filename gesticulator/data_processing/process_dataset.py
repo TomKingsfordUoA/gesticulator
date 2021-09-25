@@ -5,6 +5,7 @@ It should be used before training, as described in the README.md file.
 
 @authors: Taras Kucherenko, Rajmund Nagy
 """
+import json
 import os
 from os import path
 
@@ -13,9 +14,9 @@ import pandas as pd
 import tqdm
 from transformers import BertTokenizer, BertModel
 
-from gesticulator.data_processing import tools
-from gesticulator.data_processing.data_params import processing_argparser
-from gesticulator.data_processing.text_features.parse_json_transcript import encode_json_transcript_with_bert
+from . import tools
+from .data_params import processing_argparser
+from .text_features.parse_json_transcript import encode_json_transcript_with_bert
 
 
 def _encode_vectors(audio_filename, gesture_filename, text_filename, embedding_model, mode, args, augment_with_context):
@@ -94,9 +95,14 @@ def _encode_vectors(audio_filename, gesture_filename, text_filename, embedding_m
     output_vectors = output_vectors[0::3]
 
     # Step 3: Obtain text transcription:
+    with open(text_filename, 'r') as file:
+        transcription_segments = json.load(file)
     if isinstance(embedding_model, tuple):
         text_encoding = encode_json_transcript_with_bert(
-            text_filename, tokenizer = embedding_model[0], bert_model = embedding_model[1])
+            transcription_segments=transcription_segments,
+            tokenizer=embedding_model[0],
+            bert_model=embedding_model[1],
+        )
     else:
         raise Exception('Something is wrong with the BERT embedding model')
 

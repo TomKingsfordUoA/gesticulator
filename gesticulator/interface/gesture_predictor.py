@@ -1,3 +1,4 @@
+import json
 import os.path
 from enum import Enum, auto
 from math import ceil
@@ -199,10 +200,16 @@ class GesturePredictor:
                             1) a time-annotated JSON 2) path to a textfile 3) text as string
             text_type:  the TextInputType of the text (as above)
         """
+
         if text_type == self.TextInputType.JSON_PATH:
             if isinstance(self.embedding, tuple):
+                with open(text, 'r') as file:
+                    transcription_segments = json.load(file)
                 return encode_json_transcript_with_bert(
-                    text, tokenizer = self.embedding[0], bert_model = self.embedding[1])
+                    transcription_segments=transcription_segments,
+                    tokenizer=self.embedding[0],
+                    bert_model=self.embedding[1],
+                )
             else:
                 raise Exception('ERROR: Unknown embedding: ', self.embedding)
         

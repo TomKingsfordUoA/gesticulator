@@ -12,9 +12,9 @@ For each frame, we calculate 5 extra features in addition to the word encodings.
 import json
 import torch
 import numpy as np
-from gesticulator.data_processing.text_features.syllable_count import count_syllables
+from ..text_features.syllable_count import count_syllables
 
-def encode_json_transcript_with_bert(json_file, tokenizer, bert_model):
+def encode_json_transcript_with_bert(transcription_segments, tokenizer, bert_model):
     """
     Parse json file and encode every word by BERT
 
@@ -35,7 +35,7 @@ def encode_json_transcript_with_bert(json_file, tokenizer, bert_model):
                     [2,3,4] ,[2,3,4] ,[2,3,4] ,[3,4,5] ,[3,4,5] ]
 
     Args:
-        json_file:        json of transcript of the speech signal by Google ASR
+        transcription_segments:        json of transcript of the speech signal by Google ASR
         tokenizer:        HuggingFace BERT tokenizer
         bert_model:       HuggingFace BERT model
 
@@ -65,9 +65,6 @@ def encode_json_transcript_with_bert(json_file, tokenizer, bert_model):
     non_filler_words_in_sentence = [] 
     sentence_word_indices_list = [] # The index of the current word in the above vector for each frame
     sentence_extra_features_list = [] # The corresponding extra features
-    
-    with open(json_file, 'r') as file:
-        transcription_segments = json.load(file)
 
     # The JSON files contain about a minute long segments
     for segment in transcription_segments: 
