@@ -1,3 +1,12 @@
+import copy
+
+from sklearn.base import BaseEstimator, TransformerMixin
+import pandas as pd
+import numpy as np
+
+from pymo.rotation_tools import euler_reorder, euler_reorder2, offsets, offsets_inv
+
+
 class EulerReorder(BaseEstimator, TransformerMixin):
     def __init__(self, new_order):
         """
