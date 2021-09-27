@@ -163,7 +163,7 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
 
         # Speech frame-level Encodigs
         if not self.hparams.disable_audio:
-            speech_dim = self.train_dataset.audio_dim + self.text_dim
+            speech_dim = self.hparams.audio_dim + self.text_dim
         else:
             speech_dim = self.text_dim
         if args.use_recurrent_speech_enc:
