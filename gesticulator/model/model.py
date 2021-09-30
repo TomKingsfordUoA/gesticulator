@@ -213,6 +213,7 @@ class GesticulatorModel(pl.LightningModule, PredictionSavingMixin):
 
     def calculate_mean_pose(self):
         self.hparams.mean_pose = np.mean(self.val_dataset.gesture, axis=(0, 1))
+        os.makedirs(self.save_dir, exist_ok=True)
         np.save(os.path.join(self.save_dir, "mean_pose.npy"), self.hparams.mean_pose)
 
     def load_mean_pose(self):
